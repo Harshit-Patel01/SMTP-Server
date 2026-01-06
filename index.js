@@ -14,6 +14,16 @@ const server = new SMTPServer(
         onRcptTo(address, session, callback) {
             console.log("Recipient to:", address.address);
             callback(); // Accept the recipient
+        },
+        onData(stream, session, callback) {
+            let message = "";
+            stream.on("data", (chunk) => {
+                message += chunk.toString();
+            });
+            stream.on("end", () => {
+                console.log("Received message:", message);
+                callback(); // Accept the data
+            });
         }
     }
 );
