@@ -1,0 +1,16 @@
+{
+  "name": "mail-server",
+  "version": "1.0.0",
+  "description": "A mail server",
+  "license": "ISC",
+  "author": "Hael",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "@types/smtp-server": "^3.5.12",
+    "smtp-server": "^3.18.0"
+  }
+}
