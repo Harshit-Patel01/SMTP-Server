@@ -1,4 +1,6 @@
 const { SMTPServer } = require("smtp-server");
+const { simpleParser } = require("mailparser");
+
 
 const server = new SMTPServer(
     {
@@ -16,14 +18,19 @@ const server = new SMTPServer(
             callback(); // Accept the recipient
         },
         onData(stream, session, callback) {
-            let message = "";
-            stream.on("data", (chunk) => {
-                message += chunk.toString();
-            });
-            stream.on("end", () => {
-                console.log("Received message:", message);
-                callback(); // Accept the data
-            });
+            simpleParser(stream)
+                .then(parsed => {
+                    console.log("From:", parsed.from.text);
+                    console.log("To:", parsed.to.text);
+                    console.log("Subject:", parsed.subject);
+                    console.log("Body:", parsed.html);
+                    callback(); // Accept the data
+                })
+                .catch(err => {
+                    console.error("Error parsing email:", err);
+                    callback(err); // Reject the data
+                });
+            
         }
     }
 );
