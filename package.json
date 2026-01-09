@@ -4,15 +4,19 @@
   "description": "A mail server",
   "license": "ISC",
   "author": "Hael",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js"
+    "start": "nodemon index.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.90.1",
     "@types/mailparser": "^3.4.6",
     "@types/smtp-server": "^3.5.12",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "mailparser": "^3.9.1",
+    "nodemon": "^3.1.11",
     "smtp-server": "^3.18.0"
   }
 }
