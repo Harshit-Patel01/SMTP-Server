@@ -2,19 +2,59 @@ import { SMTPServer } from "smtp-server";
 import { simpleParser } from "mailparser";
 import { supabase } from './db.js';
 
+import express from 'express';
+
+const app = express();
+app.use(express.json());
+
+
+app.get('/mails', (req,res) => {
+    supabase.from('mails').select('id, sender, receiver, header').then(({data, error}) => {
+        if (error) {
+            res.status(500).json({ error: error.message });
+        } else {
+            const content = data.map(mail => `
+                <div>
+                    <h3>${mail.header}</h3>
+                    <p>From: ${mail.sender}</p>
+                    <p>To: ${mail.receiver}</p>
+                    <a href="/${mail.id}">View Mail</a>
+                </div>
+            `);
+            res.contentType('text/html');
+            res.send(content.sort().join(''));
+        }
+    });
+})
+
+
+app.get('/:id', (req, res) => {
+    const id = req.params.id;
+    supabase.from('mails').select('*').eq('id', id).then(({ data, error }) => {
+        if (error) {
+            res.status(500).json({ error: error.message });
+        } else if (data.length === 0) {
+            res.status(404).json({ error: 'Mail not found' });
+        } else {
+            return res.contentType('text/html').send(`
+                <div>
+                    <h2>${data[0].header}</h2>
+                    <p>From: ${data[0].sender}</p>
+                    <p>To: ${data[0].receiver}</p>
+                    <div>${data[0].body}</div>
+                </div>
+            `);
+        }
+    });
+});
+
+
+
 const server = new SMTPServer(
     {
         authOptional: true,
         onConnect(session, callback) {
             console.log("Client connected:", session.remoteAddress);
-            callback();
-        },
-        onMailFrom(address, session, callback) {
-            console.log("Mail from:", address.address);
-            callback();
-        },
-        onRcptTo(address, session, callback) {
-            console.log("Recipient to:", address.address);
             callback();
         },
         onData(stream, session, callback) {
@@ -52,4 +92,8 @@ const server = new SMTPServer(
 
 server.listen(25, () => {
     console.log("SMTP Server is listening on port 25");
+});
+
+app.listen(80, () => {
+    console.log('Express server listening on port 80');
 });
