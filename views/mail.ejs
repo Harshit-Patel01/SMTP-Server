@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= mail.header %> - MailFlow</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: white;
+      border-right: 1px solid #e5e5e7;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .compose-btn {
+      margin: 0 20px 20px 20px;
+      background: #7c3aed;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .compose-btn:hover {
+      background: #6d28d9;
+    }
+
+    .nav-menu {
+      flex: 1;
+    }
+
+    .nav-item {
+      padding: 10px 20px;
+      margin: 0 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6e6e73;
+      font-size: 15px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .nav-item.active {
+      background: #f5f5f7;
+      color: #1d1d1f;
+      font-weight: 500;
+    }
+
+    .nav-item:hover:not(.active) {
+      background: #fafafa;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid #e5e5e7;
+      padding: 10px 0 0 0;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #6e6e73;
+      transition: background 0.2s;
+      border: none;
+      background: #f5f5f7;
+      font-size: 18px;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      background: #e5e5e7;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #7c3aed;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: #7c3aed;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #6e6e73;
+      transition: background 0.2s;
+    }
+
+    .header-icon:hover {
+      background: #f5f5f7;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #7c3aed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* Mail View */
+    .mail-view {
+      flex: 1;
+      overflow-y: auto;
+      background: #fafafa;
+    }
+
+    .mail-view-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .mail-header-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .mail-toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .toolbar-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid #e5e5e7;
+      border-radius: 8px;
+      background: white;
+      color: #1d1d1f;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toolbar-btn:hover {
+      background: #f5f5f7;
+      border-color: #d1d1d6;
+    }
+
+    .toolbar-btn.primary {
+      background: #7c3aed;
+      color: white;
+      border-color: #7c3aed;
+    }
+
+    .toolbar-btn.primary:hover {
+      background: #6d28d9;
+    }
+
+    .toolbar-btn.danger {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+    }
+
+    .toolbar-btn.danger:hover {
+      background: #dc2626;
+    }
+
+    .mail-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 20px;
+    }
+
+    .mail-sender-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .sender-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 500;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .sender-details {
+      flex: 1;
+    }
+
+    .sender-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+    }
+
+    .sender-email {
+      font-size: 14px;
+      color: #86868b;
+    }
+
+    .mail-timestamp {
+      font-size: 14px;
+      color: #86868b;
+      text-align: right;
+    }
+
+    .mail-meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px 16px;
+      font-size: 14px;
+      padding: 16px;
+      background: #f5f5f7;
+      border-radius: 8px;
+    }
+
+    .meta-label {
+      color: #6e6e73;
+      font-weight: 500;
+    }
+
+    .meta-value {
+      color: #1d1d1f;
+      word-break: break-word;
+    }
+
+    .mail-content-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .mail-body {
+      line-height: 1.8;
+      color: #1d1d1f;
+      font-size: 15px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .empty-body {
+      color: #86868b;
+      text-align: center;
+      padding: 40px 20px;
+      font-style: italic;
+    }
+
+    .attachments-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 30px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .attachments-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1d1d1f;
+    }
+
+    .attachment-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f5f5f7;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .attachment-icon {
+      width: 40px;
+      height: 40px;
+      background: #7c3aed;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .attachment-details {
+      flex: 1;
+    }
+
+    .attachment-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1d1d1f;
+    }
+
+    .attachment-size {
+      font-size: 13px;
+      color: #86868b;
+    }
+
+    .attachment-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .attachment-btn {
+      padding: 6px 12px;
+      border: 1px solid #e5e5e7;
+      border-radius: 6px;
+      background: white;
+      color: #1d1d1f;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .attachment-btn:hover {
+      background: #fafafa;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: -240px;
+        z-index: 100;
+        transition: left 0.3s;
+      }
+
+      .mail-view-inner {
+        padding: 20px;
+      }
+
+      .mail-header-section,
+      .mail-content-section,
+      .attachments-section {
+        padding: 20px;
+      }
+
+      .mail-toolbar {
+        flex-wrap: wrap;
+      }
+
+      .mail-sender-info {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .mail-timestamp {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <button class="compose-btn">
+        ✏️ Compose
+      </button>
+
+      <div class="nav-menu">
+        <a href="/" class="nav-item active">
+          📥 Inbox
+        </a>
+        <div class="nav-item">
+          📤 Sent
+        </div>
+        <div class="nav-item">
+          📄 Drafts
+          <span style="margin-left: auto; font-size: 14px; color: #86868b;">3</span>
+        </div>
+        <div class="nav-item">
+          🗑️ Trash
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="nav-item">
+          ⚙️ Settings
+        </div>
+        <div class="nav-item">
+          🚪 Logout
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-left">
+          <a href="/" class="back-btn">←</a>
+          <div class="logo">
+            <div class="logo-icon">✉️</div>
+            MailFlow
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="header-icon">⚙️</div>
+          <div class="avatar">U</div>
+          <div class="header-icon">🔔</div>
+        </div>
+      </div>
+
+      <!-- Mail View -->
+      <div class="mail-view">
+        <div class="mail-view-inner">
+          <div class="mail-header-section">
+            <div class="mail-toolbar">
+              <button class="toolbar-btn primary">↩ Reply</button>
+              <button class="toolbar-btn">↪ Forward</button>
+              <button class="toolbar-btn danger">🗑️</button>
+            </div>
+
+            <h1 class="mail-title"><%= mail.header || 'No Subject' %></h1>
+
+            <div class="mail-sender-info">
+              <div class="sender-avatar">
+                <%= mail.sender ? mail.sender.charAt(0).toUpperCase() : 'U' %>
+              </div>
+              <div class="sender-details">
+                <div class="sender-name">
+                  <%= mail.sender ? mail.sender.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown Sender' %>
+                </div>
+                <div class="sender-email">
+                  <%= mail.sender ? mail.sender : 'unknown@example.com' %>
+                </div>
+              </div>
+              <div class="mail-timestamp">
+                October 26, 2025, 10:30 AM
+              </div>
+            </div>
+
+            <div class="mail-meta">
+              <span class="meta-label">To:</span>
+              <span class="meta-value"><%= mail.receiver || 'Not specified' %></span>
+            </div>
+          </div>
+
+          <div class="mail-content-section">
+            <% if (mail.body && mail.body.trim()) { %>
+              <div class="mail-body"><%- mail.body %></div>
+            <% } else { %>
+              <div class="empty-body">No message content</div>
+            <% } %>
+          </div>
+
+          <div class="attachments-section">
+            <div class="attachments-title">Attachments (2)</div>
+            <div class="attachment-item">
+              <div class="attachment-icon">📄</div>
+              <div class="attachment-details">
+                <div class="attachment-name">Phoenix_Launch_Plan_V2.pdf</div>
+                <div class="attachment-size">2.5 MB</div>
+              </div>
+              <div class="attachment-actions">
+                <button class="attachment-btn">⬇</button>
+                <button class="attachment-btn">👁</button>
+              </div>
+            </div>
+            <div class="attachment-item">
+              <div class="attachment-icon">🗂️</div>
+              <div class="attachment-details">
+                <div class="attachment-name">Marketing_Assets.zip</div>
+                <div class="attachment-size">12.1 MB</div>
+              </div>
+              <div class="attachment-actions">
+                <button class="attachment-btn">⬇</button>
+                <button class="attachment-btn">👁</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
