@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailFlow - Inbox</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: white;
+      border-right: 1px solid #e5e5e7;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .compose-btn {
+      margin: 0 20px 20px 20px;
+      background: #7c3aed;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .compose-btn:hover {
+      background: #6d28d9;
+    }
+
+    .nav-menu {
+      flex: 1;
+    }
+
+    .nav-item {
+      padding: 10px 20px;
+      margin: 0 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #6e6e73;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+
+    .nav-item.active {
+      background: #f5f5f7;
+      color: #1d1d1f;
+      font-weight: 500;
+    }
+
+    .nav-item:hover:not(.active) {
+      background: #fafafa;
+    }
+
+    .nav-item .count {
+      margin-left: auto;
+      font-size: 14px;
+      color: #86868b;
+    }
+
+    .nav-item.active .count {
+      color: #1d1d1f;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid #e5e5e7;
+      padding: 10px 0 0 0;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #7c3aed;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: #7c3aed;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #6e6e73;
+      transition: background 0.2s;
+    }
+
+    .header-icon:hover {
+      background: #f5f5f7;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #7c3aed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* Inbox Content */
+    .inbox-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .inbox-header {
+      padding: 30px 30px 20px 30px;
+    }
+
+    .inbox-title {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .search-bar {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 16px;
+      border: 1px solid #e5e5e7;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-bar:focus {
+      border-color: #7c3aed;
+    }
+
+    .inbox-tabs {
+      display: flex;
+      gap: 20px;
+      padding: 0 30px;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .tab {
+      padding: 12px 0;
+      font-size: 14px;
+      color: #6e6e73;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      color: #1d1d1f;
+      font-weight: 500;
+      border-bottom-color: #7c3aed;
+    }
+
+    .tab:hover:not(.active) {
+      color: #1d1d1f;
+    }
+
+    /* Messages */
+    .messages-section {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 30px;
+    }
+
+    .messages-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 12px 12px 12px;
+      font-size: 13px;
+      color: #86868b;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .messages-header-left {
+      display: flex;
+      gap: 150px;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 12px;
+      border-bottom: 1px solid #f5f5f7;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .message-item:hover {
+      background: #fafafa;
+    }
+
+    .message-checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #d1d1d6;
+      border-radius: 4px;
+      margin-right: 16px;
+      cursor: pointer;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 500;
+      margin-right: 16px;
+      flex-shrink: 0;
+    }
+
+    .message-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .message-sender {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+    }
+
+    .message-subject {
+      font-size: 14px;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .message-snippet {
+      font-size: 13px;
+      color: #86868b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .message-time {
+      font-size: 13px;
+      color: #86868b;
+      margin-left: 20px;
+      white-space: nowrap;
+    }
+
+    .no-messages {
+      text-align: center;
+      padding: 80px 20px;
+      color: #86868b;
+    }
+
+    .no-messages-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .no-messages h2 {
+      font-size: 20px;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .no-messages p {
+      font-size: 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: -240px;
+        z-index: 100;
+        transition: left 0.3s;
+      }
+
+      .sidebar.open {
+        left: 0;
+      }
+
+      .messages-header-left {
+        gap: 60px;
+      }
+
+      .message-time {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <button class="compose-btn">
+        ✏️ Compose
+      </button>
+
+      <div class="nav-menu">
+        <div class="nav-item active">
+          📥 Inbox
+          <% if (mails && mails.length > 0) { %>
+            <span class="count"><%= mails.length %></span>
+          <% } %>
+        </div>
+        <div class="nav-item">
+          📤 Sent
+        </div>
+        <div class="nav-item">
+          📄 Drafts
+          <span class="count">3</span>
+        </div>
+        <div class="nav-item">
+          🗑️ Trash
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="nav-item">
+          ⚙️ Settings
+        </div>
+        <div class="nav-item">
+          🚪 Logout
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-left">
+          <div class="logo">
+            <div class="logo-icon">✉️</div>
+            MailFlow
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="header-icon">⚙️</div>
+          <div class="avatar">U</div>
+          <div class="header-icon">🔔</div>
+        </div>
+      </div>
+
+      <!-- Inbox Content -->
+      <div class="inbox-content">
+        <div class="inbox-header">
+          <h1 class="inbox-title">Inbox</h1>
+          <input type="text" class="search-bar" placeholder="🔍 Search mail...">
+        </div>
+
+        <div class="inbox-tabs">
+          <div class="tab active">All</div>
+          <div class="tab">Unread</div>
+          <div class="tab">Flagged</div>
+          <div class="tab">📎 Attachments</div>
+        </div>
+
+        <div class="messages-section">
+          <% if (mails && mails.length > 0) { %>
+            <div class="messages-header">
+              <div class="messages-header-left">
+                <span>Sender</span>
+                <span>Subject & Snippet</span>
+              </div>
+              <div>
+                <span>2 unread of <%= mails.length %></span>
+              </div>
+            </div>
+
+            <% mails.forEach((mail, index) => { %>
+              <a href="/<%= mail.id %>" class="message-item">
+                <div class="message-checkbox"></div>
+                <div class="message-avatar">
+                  <%= mail.sender ? mail.sender.charAt(0).toUpperCase() : 'U' %>
+                </div>
+                <div class="message-content">
+                  <div class="message-sender"><%= mail.sender || 'Unknown Sender' %></div>
+                  <div class="message-subject">
+                    <%= mail.header || 'No Subject' %>
+                  </div>
+                  <div class="message-snippet">
+                    <%= mail.receiver ? 'To: ' + mail.receiver : '' %>
+                  </div>
+                </div>
+                <div class="message-time">
+                  <%= index === 0 ? '2 hours ago' : index === 1 ? '4 hours ago' : index === 2 ? 'Yesterday' : index === 3 ? '2 days ago' : '3 days ago' %>
+                </div>
+              </a>
+            <% }); %>
+
+          <% } else { %>
+            <div class="no-messages">
+              <div class="no-messages-icon">📭</div>
+              <h2>No Emails</h2>
+              <p>No mails received yet. Check back later!</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
