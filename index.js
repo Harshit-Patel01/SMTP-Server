@@ -5,24 +5,18 @@ import { supabase } from './db.js';
 import express from 'express';
 
 const app = express();
+app.set('view engine', 'ejs');
 app.use(express.json());
 
 
-app.get('/mails', (req,res) => {
+app.get('/', (req,res) => {
     supabase.from('mails').select('id, sender, receiver, header').then(({data, error}) => {
         if (error) {
             res.status(500).json({ error: error.message });
         } else {
-            const content = data.map(mail => `
-                <div>
-                    <h3>${mail.header}</h3>
-                    <p>From: ${mail.sender}</p>
-                    <p>To: ${mail.receiver}</p>
-                    <a href="/${mail.id}">View Mail</a>
-                </div>
-            `);
-            res.contentType('text/html');
-            res.send(content.sort().join(''));
+            res.render('index', { 
+                mails: data
+            });
         }
     });
 })
@@ -36,14 +30,10 @@ app.get('/:id', (req, res) => {
         } else if (data.length === 0) {
             res.status(404).json({ error: 'Mail not found' });
         } else {
-            return res.contentType('text/html').send(`
-                <div>
-                    <h2>${data[0].header}</h2>
-                    <p>From: ${data[0].sender}</p>
-                    <p>To: ${data[0].receiver}</p>
-                    <div>${data[0].body}</div>
-                </div>
-            `);
+            res.render('mail', { 
+                mail: data[0]
+            });
+            
         }
     });
 });
