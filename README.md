@@ -4,6 +4,6 @@
 
 ```bash
 npm install
-npm run dev
+npm start
 ```
 ** No user and Sesson handling is done currently
