@@ -10,8 +10,8 @@ npm start
 
 * Snippet of the Website
 
-![alt text](https://github.com/Harshit-Patel01/SMTP-Server/tree/main/assets/model1.png?raw=true)
+![alt text](https://raw.githubusercontent.com/Harshit-Patel01/SMTP-Server/refs/heads/main/assets/model1.png)
 
 * Mail Section
 
-![alt text](https://github.com/Harshit-Patel01/SMTP-Server/tree/main/assets/model2.png?raw=true)
+![alt text](https://raw.githubusercontent.com/Harshit-Patel01/SMTP-Server/refs/heads/main/assets/model1.png)
