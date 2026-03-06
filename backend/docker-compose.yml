@@ -1,0 +1,46 @@
+# Run from backend/ directory: docker compose up -d
+# Or from repo root: docker compose -f backend/docker-compose.yml up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mailflow-postgres
+    environment:
+      POSTGRES_USER: mailflow
+      POSTGRES_PASSWORD: mailflow
+      POSTGRES_DB: mailflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema/01_init.sql:/docker-entrypoint-initdb.d/01_init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mailflow -d mailflow"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mailflow-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: mailflow
+      DB_USER: mailflow
+      DB_PASSWORD: mailflow
+      EMAIL_DOMAIN: mail.hael.in
+      API_PORT: 3004
+      # Use 2525 in container (no root); host port 25 forwards here for receiving mail
+      SMTP_PORT: 2525
+    ports:
+      - "3004:3004"
+      - "25:2525"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
